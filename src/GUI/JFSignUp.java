@@ -4,24 +4,30 @@
  */
 package GUI;
 
-
 import Domain.Friends;
+import Domain.User;
+import Utility.UsuarioXML;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
  * @author User
  */
 public class JFSignUp extends javax.swing.JFrame {
+
     private Friends friends;
-    /**
-     * Creates new form JFSignUp
-     */
-    public JFSignUp(Friends friends) {
+    private UsuarioXML ml;
+
+    public JFSignUp(Friends friends) throws IOException, JDOMException {
         this.friends = friends;
         initComponents();
+        this.ml = new UsuarioXML();
+
     }
 
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -271,11 +277,28 @@ public class JFSignUp extends javax.swing.JFrame {
 
     }
     private void jbtnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSignUpActionPerformed
+
         if (jbtnSignUp == evt.getSource() && validateSpaces()) {
-            
-            JFLogin fLogin = new JFLogin(this.friends);
-            fLogin.setVisible(true);
-            dispose();
+            User user = new User(
+                    this.jtfUser.getText(),
+                    this.jtfFullName.getText(),
+                    this.jPasswordField1.getText()
+            );
+
+            try {
+
+                
+                if (ml.recuperarUser().equals(this.jtfUser.getText())) {
+                    this.jtfUser.setText("user already exists, please introduce a new one");
+                } else {
+                    ml.guardarRegistroUsuario(user);
+                    JFLogin fLogin = new JFLogin(this.friends);
+                    fLogin.setVisible(true);
+                    dispose();
+                }
+            } catch (JDOMException | IOException ex) {
+                Logger.getLogger(JFSignUp.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
     }//GEN-LAST:event_jbtnSignUpActionPerformed
@@ -318,14 +341,14 @@ public class JFSignUp extends javax.swing.JFrame {
 
     private void jtfUserMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jtfUserMousePressed
         if (this.jtfUser.getText().equals("Please fill in the required information.")) {
-            
+
             this.jtfUser.setText("");
         }
     }//GEN-LAST:event_jtfUserMousePressed
 
     private void jtfFullNameMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jtfFullNameMousePressed
         if (this.jtfFullName.getText().equals("Please fill in the required information.")) {
-            
+
             this.jtfFullName.setText("");
         }
     }//GEN-LAST:event_jtfFullNameMousePressed
@@ -344,39 +367,39 @@ public class JFSignUp extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jtfUserActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-            }
-        });
-    }
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//            }
+//        });
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Background;
