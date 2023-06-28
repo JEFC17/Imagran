@@ -22,9 +22,9 @@ public class JFLogin extends javax.swing.JFrame {
      */
     public JFLogin() {
         this.friends = new Friends();
-        this.friends.getFriends().add(new User("Maryam"));
-        this.friends.getFriends().add(new User("Josseph"));
-        this.friends.getFriends().add(new User("Emanuel"));
+        this.friends.getFriends().add(new User("Maryam", "",""));
+        this.friends.getFriends().add(new User("Josseph","",""));
+        this.friends.getFriends().add(new User("Emanuel","",""));
 
         this.friends.getFriends().get(0).setPost(new Post("Carro nuevo!"));
         this.friends.getFriends().get(0).setPost(new Post("Feliz navidad a todos"));

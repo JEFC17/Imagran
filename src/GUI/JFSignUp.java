@@ -6,6 +6,12 @@ package GUI;
 
 
 import Domain.Friends;
+import Domain.User;
+import Utility.UsuarioXML;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -13,12 +19,14 @@ import Domain.Friends;
  */
 public class JFSignUp extends javax.swing.JFrame {
     private Friends friends;
+    private UsuarioXML xml;
     /**
      * Creates new form JFSignUp
      */
     public JFSignUp(Friends friends) {
         this.friends = friends;
         initComponents();
+        this.xml = new UsuarioXML();
     }
 
     
@@ -272,10 +280,17 @@ public class JFSignUp extends javax.swing.JFrame {
     }
     private void jbtnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSignUpActionPerformed
         if (jbtnSignUp == evt.getSource() && validateSpaces()) {
-            
-            JFLogin fLogin = new JFLogin(this.friends);
-            fLogin.setVisible(true);
-            dispose();
+            try {
+                User user = new User(this.jtfUser.getText(),
+                        this.jtfFullName.getText(),
+                        this.jPasswordField1.getText());
+                this.xml.guardarRegistroUsuario(user);
+                JFLogin fLogin = new JFLogin(this.friends);
+                fLogin.setVisible(true);
+                dispose();
+            } catch (JDOMException | IOException ex) {
+                Logger.getLogger(JFSignUp.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
     }//GEN-LAST:event_jbtnSignUpActionPerformed
