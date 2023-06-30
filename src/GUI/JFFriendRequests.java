@@ -6,8 +6,14 @@ package GUI;
 
 import Domain.ContentButtons;
 import Domain.Friends;
+import Domain.User;
+import Utility.UsuarioXML;
 import java.awt.Color;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -15,35 +21,32 @@ import java.awt.Point;
  */
 public class JFFriendRequests extends javax.swing.JFrame {
 
-    private ContentButtons friendsB;
-    private ContentButtons requests;
-    private Friends friends;
-    private boolean aux;
+    private ContentButtons buttons;
+    private User user;
+    private UsuarioXML xML;
 
     /**
      * Creates new form JFFriendRequests
      */
-    public JFFriendRequests(Friends friends) {
+    public JFFriendRequests(User user) {
+        
+        try {
+            this.user = user;
+            this.xML = new UsuarioXML();
+            this.buttons = new ContentButtons();
 
-        this.aux = true;
-        this.friendsB = new ContentButtons();
-        this.requests = new ContentButtons();
-        this.friends = friends;
-        fillRequests();
-        initComponents();
-        this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-//        if (this.friendsB.getCircularDoublyList().isEmpty()) {
-//            this.jtaShowFriends.setText("");
-//        } else {
-//            this.jtaShowFriends.setText("" + this.friendsB.getCircularDoublyList().fristInList());
-//        }
-//        this.jBAccept.setVisible(true);
-//        this.jBDelete.setVisible(true);
-    }
-
-    public void fillRequests() {
-        for (int i = 0; i < this.friends.getFriends().size(); i++) {
-            this.requests.getCircularDoublyList().addEnd(this.friends.getFriends().get(i).getName());
+            initComponents();
+            if (this.user.getRequest() != null) {
+                if (!this.user.getRequest().isEmpty() && this.user.getRequest().fristElement() != null) {
+                    this.jtaShowFriends.setText("" + this.user.getRequest().fristElement());
+                } else {
+                    this.jtaShowFriends.setText("");
+                }
+            }
+        } catch (JDOMException ex) {
+            Logger.getLogger(JFFriendRequests.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JFFriendRequests.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -382,63 +385,29 @@ public class JFFriendRequests extends javax.swing.JFrame {
 
         if (jbtnLeft == evt.getSource()) {
             this.jtaShowFriends.setText("");
-            if (this.requests.getCircularDoublyList().isEmpty()) {
-                this.jtaShowFriends.setText("");
-            } else {
-                this.requests.moveLeft();
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+            this.buttons.moveLeftRequests(this.user.getRequest());
+            if (this.user.getRequest() != null) {
+                if (!this.user.getRequest().isEmpty() && this.user.getRequest().fristElement() != null) {
+                    this.jtaShowFriends.setText("" + this.user.getRequest().fristElement());
+                } else {
+                    this.jtaShowFriends.setText("");
+                }
             }
-            
-//            if (!this.aux) {
-//                this.jtaShowFriends.setText("");
-//                if (this.requests.getCircularDoublyList().isEmpty()) {
-//                    this.jtaShowFriends.setText("");
-//                } else {
-//                    this.requests.moveLeft();
-//                    this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-//                }
-//
-//            } else {
-//
-//                this.jtaShowFriends.setText("");
-//                if (this.friendsB.getCircularDoublyList().isEmpty()) {
-//                    this.jtaShowFriends.setText("");
-//                } else {
-//                    this.friendsB.moveLeft();
-//                    this.jtaShowFriends.setText("" + this.friendsB.getCircularDoublyList().fristInList());
-//                }
-//            }
         }
     }//GEN-LAST:event_jbtnLeftActionPerformed
 
     private void jbtnRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRightActionPerformed
 
         if (jbtnRight == evt.getSource()) {
-                        this.jtaShowFriends.setText("");
-            if (this.requests.getCircularDoublyList().isEmpty()) {
-                this.jtaShowFriends.setText("");
-            } else {
-                this.requests.moveRight();
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+            this.jtaShowFriends.setText("");
+            this.buttons.moveRightRequests(this.user.getRequest());
+            if (this.user.getRequest() != null) {
+                if (!this.user.getRequest().isEmpty() && this.user.getRequest().fristElement() != null) {
+                    this.jtaShowFriends.setText("" + this.user.getRequest().fristElement());
+                } else {
+                    this.jtaShowFriends.setText("");
+                }
             }
-            
-//            if (!this.aux) {
-//                this.jtaShowFriends.setText("");
-//                if (this.requests.getCircularDoublyList().isEmpty()) {
-//                    this.jtaShowFriends.setText("");
-//                } else {
-//                    this.requests.moveRight();
-//                    this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-//                }
-//            } else {
-//                this.jtaShowFriends.setText("");
-//                if (this.friendsB.getCircularDoublyList().isEmpty()) {
-//                    this.jtaShowFriends.setText("");
-//                } else {
-//                    this.friendsB.moveRight();
-//                    this.jtaShowFriends.setText("" + this.friendsB.getCircularDoublyList().fristInList());
-//                }
-//            }
         }
     }//GEN-LAST:event_jbtnRightActionPerformed
 
@@ -446,41 +415,51 @@ public class JFFriendRequests extends javax.swing.JFrame {
 
         if (jBAccept == evt.getSource()) {
 
-            if (this.requests.getCircularDoublyList().getSize() == 1) {
-                this.friendsB.getCircularDoublyList().addEnd(this.requests.getCircularDoublyList().fristInList());
-                this.requests.getCircularDoublyList().cancel();
-            } else if (this.requests.getCircularDoublyList().getSize() > 1) {
-                this.friendsB.getCircularDoublyList().addEnd(this.requests.getCircularDoublyList().fristInList());
-                this.requests.getCircularDoublyList().deleteByElement(this.friendsB.getCircularDoublyList().lastInList());
+           
+            if (this.user.getRequest().getSize() == 1) {
+                String element = (String) this.user.getRequest().fristElement();
+                this.xML.addFriends(user, element);
+                this.xML.actualizarRequests(element, user);
+                this.user.getRequest().cancel();
+            } else if (this.user.getRequest().getSize() > 1) {
+                String element = (String) this.user.getRequest().fristElement();
+                this.xML.addFriends(user, element);
+                this.xML.actualizarRequests(element, user);
+                this.user.getRequest().delete();
             }
-
-            if (this.requests.getCircularDoublyList().isEmpty()) {
+            if (this.user.getRequest().isEmpty()) {
                 this.jtaShowFriends.setText("");
             } else {
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+                this.jtaShowFriends.setText("" + this.user.getRequest().fristElement());
             }
         }
     }//GEN-LAST:event_jBAcceptActionPerformed
 
     private void jBDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDeleteActionPerformed
         if (jBDelete == evt.getSource()) {
-            if (this.requests.getCircularDoublyList().getSize() == 1) {
-                this.requests.getCircularDoublyList().cancel();
-            } else if (this.requests.getCircularDoublyList().getSize() > 1) {
-                Object element = this.requests.getCircularDoublyList().fristInList();
-                this.requests.getCircularDoublyList().deleteByElement(element);
+            if (this.user.getRequest().getSize() == 1) {
+                String element = (String) this.user.getRequest().fristElement();
+
+                this.xML.actualizarRequests(element, user);
+                this.user.getRequest().cancel();
+            } else if (this.user.getRequest().getSize() > 1) {
+                String element = (String) this.user.getRequest().fristElement();
+
+                this.xML.actualizarRequests(element, user);
+
+                this.user.getRequest().delete();
             }
-            if (this.requests.getCircularDoublyList().isEmpty()) {
+            if (this.user.getRequest().isEmpty()) {
                 this.jtaShowFriends.setText("");
             } else {
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+                this.jtaShowFriends.setText("" + this.user.getRequest().fristElement());
             }
         }
     }//GEN-LAST:event_jBDeleteActionPerformed
 
     private void jbtnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnHomeActionPerformed
         if (jbtnHome == evt.getSource()) {
-            JFFeed jff = new JFFeed(this.friends);
+            JFFeed jff = new JFFeed(this.user);
             jff.setVisible(true);
             dispose();
         }
@@ -488,21 +467,21 @@ public class JFFriendRequests extends javax.swing.JFrame {
 
     private void jbtnAddPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddPostActionPerformed
         if (jbtnAddPost == evt.getSource()){
-            JFAddPost jfap = new JFAddPost(this.friends);
+            JFAddPost jfap = new JFAddPost(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnAddPostActionPerformed
 
     private void jbtnAddFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddFriendsActionPerformed
-        JFFriendRequests jff = new JFFriendRequests(this.friends);
+        JFFriendRequests jff = new JFFriendRequests(this.user);
         jff.setVisible(true);
         dispose();
     }//GEN-LAST:event_jbtnAddFriendsActionPerformed
 
     private void jbtnShowFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnShowFriendsActionPerformed
         if (jbtnShowFriends == evt.getSource()){
-            JFShowFriends jfap = new JFShowFriends(this.friends);
+            JFShowFriends jfap = new JFShowFriends(this.user);
             jfap.setVisible(true);
             dispose();
         }
@@ -516,7 +495,7 @@ public class JFFriendRequests extends javax.swing.JFrame {
 
     private void jbtnSearchFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSearchFriendsActionPerformed
                 if (this.jbtnSearchFriends == evt.getSource()) {
-            JFSearchFriends jfSF = new JFSearchFriends(friends);
+            JFSearchFriends jfSF = new JFSearchFriends(this.user);
             jfSF.setVisible(true);
             dispose();
         }

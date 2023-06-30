@@ -6,34 +6,30 @@ package GUI;
 
 import Domain.ContentButtons;
 import Domain.Friends;
-
+import Domain.User;
+import Logic.CircularDoublyList;
 
 /**
  *
  * @author User
  */
 public class JFShowFriends extends javax.swing.JFrame {
-    
-    private ContentButtons friendsB;
-    private ContentButtons requests;
-    private Friends friends;
-    private boolean aux;
+
+    private ContentButtons buttons;
+    private User user;
+
     /**
      * Creates new form JFFriendRequests
      */
-    public JFShowFriends(Friends friends) {
-        this.aux = true;
-        this.friendsB = new ContentButtons();
-        this.requests = new ContentButtons();
-        this.friends = friends;
-        fillRequests();
+    public JFShowFriends(User user) {
+        this.user = user;
+        this.buttons = new ContentButtons();
         initComponents();
-        this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-    }
-
-    public void fillRequests() {
-        for (int i = 0; i < this.friends.getFriends().size(); i++) {
-            this.requests.getCircularDoublyList().addEnd(this.friends.getFriends().get(i).getName());
+        if (this.user.getFriends() == null || this.user.getFriends().isEmpty()) {
+            this.jtaShowFriends.setText("");
+        } else {
+            User u = (User) this.user.getFriends().fristInList();
+            this.jtaShowFriends.setText("" + u.getUser());
         }
     }
 
@@ -61,8 +57,6 @@ public class JFShowFriends extends javax.swing.JFrame {
         jbtnRight = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtaShowFriends = new javax.swing.JTextArea();
-        jBDelete = new javax.swing.JButton();
-        jBAccept = new javax.swing.JButton();
         Friends = new javax.swing.JLabel();
         jlBackground = new javax.swing.JLabel();
 
@@ -261,28 +255,6 @@ public class JFShowFriends extends javax.swing.JFrame {
         jtaShowFriends.setVerifyInputWhenFocusTarget(false);
         jScrollPane1.setViewportView(jtaShowFriends);
 
-        jBDelete.setBackground(new java.awt.Color(102, 102, 102));
-        jBDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jBDelete.setForeground(new java.awt.Color(255, 255, 255));
-        jBDelete.setText("Delete");
-        jBDelete.setBorder(null);
-        jBDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jBDeleteActionPerformed(evt);
-            }
-        });
-
-        jBAccept.setBackground(new java.awt.Color(0, 51, 153));
-        jBAccept.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jBAccept.setForeground(new java.awt.Color(255, 255, 255));
-        jBAccept.setText("Accept");
-        jBAccept.setBorder(null);
-        jBAccept.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jBAcceptActionPerformed(evt);
-            }
-        });
-
         Friends.setBackground(new java.awt.Color(255, 255, 255));
         Friends.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         Friends.setForeground(new java.awt.Color(255, 255, 255));
@@ -301,15 +273,10 @@ public class JFShowFriends extends javax.swing.JFrame {
                         .addComponent(Friends)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jpFriendsLayout.createSequentialGroup()
-                        .addComponent(jBDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 211, Short.MAX_VALUE)
-                        .addComponent(jBAccept, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(126, Short.MAX_VALUE))
-                    .addGroup(jpFriendsLayout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jbtnRight, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(61, Short.MAX_VALUE))))
         );
         jpFriendsLayout.setVerticalGroup(
             jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -326,11 +293,7 @@ public class JFShowFriends extends javax.swing.JFrame {
                         .addComponent(Friends, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(38, 38, 38)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 291, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(524, 524, 524)
-                .addGroup(jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jBDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jBAccept, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(203, Short.MAX_VALUE))
         );
 
         jPanel1.add(jpFriends, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 720, 680));
@@ -355,12 +318,16 @@ public class JFShowFriends extends javax.swing.JFrame {
     private void jbtnLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLeftActionPerformed
 
         if (jbtnLeft == evt.getSource()) {
-            this.jtaShowFriends.setText("");
-            if (this.requests.getCircularDoublyList().isEmpty()) {
+            if (this.user.getFriends() != null) {
+
                 this.jtaShowFriends.setText("");
-            } else {
-                this.requests.moveLeft();
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+                if (this.user.getFriends().isEmpty()) {
+                    this.jtaShowFriends.setText("");
+                } else {
+                    this.buttons.moveDown(this.user.getFriends());
+                    User u = (User) this.user.getFriends().fristInList();
+                    this.jtaShowFriends.setText("" + u.getUser());
+                }
             }
         }
     }//GEN-LAST:event_jbtnLeftActionPerformed
@@ -368,90 +335,60 @@ public class JFShowFriends extends javax.swing.JFrame {
     private void jbtnRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRightActionPerformed
 
         if (jbtnRight == evt.getSource()) {
-            this.jtaShowFriends.setText("");
-            if (this.requests.getCircularDoublyList().isEmpty()) {
+            if (this.user.getFriends() != null) {
                 this.jtaShowFriends.setText("");
-            } else {
-                this.requests.moveRight();
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+                if (this.user.getFriends().isEmpty()) {
+                    this.jtaShowFriends.setText("");
+                } else {
+                    this.buttons.moveUp(this.user.getFriends());
+                    User u = (User) this.user.getFriends().fristInList();
+                    this.jtaShowFriends.setText("" + u.getUser());
+                }
             }
+
         }
+
     }//GEN-LAST:event_jbtnRightActionPerformed
 
     private void jbtnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnHomeActionPerformed
         if (jbtnHome == evt.getSource()) {
-            JFFeed jff = new JFFeed(this.friends);
+            JFFeed jff = new JFFeed(this.user);
             jff.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnHomeActionPerformed
 
-    private void jBAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBAcceptActionPerformed
-
-        if (jBAccept == evt.getSource()) {
-
-            if (this.requests.getCircularDoublyList().getSize() == 1) {
-                this.requests.getCircularDoublyList().cancel();
-            } else if (this.requests.getCircularDoublyList().getSize() > 1) {
-                Object element = this.requests.getCircularDoublyList().fristInList();
-                this.requests.getCircularDoublyList().deleteByElement(element);
-            }
-            if (this.requests.getCircularDoublyList().isEmpty()) {
-                this.jtaShowFriends.setText("");
-            } else {
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-            }
-
-        }
-    }//GEN-LAST:event_jBAcceptActionPerformed
-
-    private void jBDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDeleteActionPerformed
-        if (jBDelete == evt.getSource()) {
-            if (this.requests.getCircularDoublyList().getSize() == 1) {
-                this.requests.getCircularDoublyList().cancel();
-            } else if (this.requests.getCircularDoublyList().getSize() > 1) {
-                Object element = this.requests.getCircularDoublyList().fristInList();
-                this.requests.getCircularDoublyList().deleteByElement(element);
-            }
-            if (this.requests.getCircularDoublyList().isEmpty()) {
-                this.jtaShowFriends.setText("");
-            } else {
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-            }
-        }
-    }//GEN-LAST:event_jBDeleteActionPerformed
-
     private void jbtnAddFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddFriendsActionPerformed
-        JFFriendRequests jff = new JFFriendRequests(this.friends);
+        JFFriendRequests jff = new JFFriendRequests(this.user);
         jff.setVisible(true);
         dispose();
     }//GEN-LAST:event_jbtnAddFriendsActionPerformed
 
     private void jbtnAddPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddPostActionPerformed
-        if (jbtnAddPost == evt.getSource()){
-            JFAddPost jfap = new JFAddPost(this.friends);
+        if (jbtnAddPost == evt.getSource()) {
+            JFAddPost jfap = new JFAddPost(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnAddPostActionPerformed
 
     private void jbtnShowFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnShowFriendsActionPerformed
-                if (jbtnShowFriends == evt.getSource()){
-            JFShowFriends jfap = new JFShowFriends(this.friends);
+        if (jbtnShowFriends == evt.getSource()) {
+            JFShowFriends jfap = new JFShowFriends(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnShowFriendsActionPerformed
 
     private void jbtnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLogOutActionPerformed
-        if (jbtnLogOut == evt.getSource()){
+        if (jbtnLogOut == evt.getSource()) {
             System.exit(0);
         }
     }//GEN-LAST:event_jbtnLogOutActionPerformed
 
     private void jbtnSearchFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSearchFriendsActionPerformed
-                if (this.jbtnSearchFriends == evt.getSource()) {
-            JFSearchFriends jfSF = new JFSearchFriends(friends);
+        if (this.jbtnSearchFriends == evt.getSource()) {
+            JFSearchFriends jfSF = new JFSearchFriends(user);
             jfSF.setVisible(true);
             dispose();
         }
@@ -496,8 +433,6 @@ public class JFShowFriends extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Friends;
-    private javax.swing.JButton jBAccept;
-    private javax.swing.JButton jBDelete;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;

@@ -10,7 +10,7 @@ package Logic;
  */
 public class LinkedStack implements Stack {
 
-    public Node top;
+    public NodeStack top;
     public int count;
 
     public LinkedStack() {
@@ -20,7 +20,7 @@ public class LinkedStack implements Stack {
 
     public String toString() {
         String toString = "";
-        Node aux = this.top;
+        NodeStack aux = this.top;
         while (aux != null) {
             toString = toString + aux.getElement() + " ";
             aux = aux.next;
@@ -33,7 +33,7 @@ public class LinkedStack implements Stack {
             return 0;
         } else {
             int counter = 0;
-            Node aux = this.top;
+            NodeStack aux = this.top;
             while (aux != null) {
                 aux = aux.next;
                 counter++;
@@ -69,8 +69,8 @@ public class LinkedStack implements Stack {
 
     @Override
     public void push(Object element) {
-        Node newNode = new Node(element);
-        Node auxNode = this.top;
+        NodeStack newNode = new NodeStack(element);
+        NodeStack auxNode = this.top;
         if (isEmpty()) {
             this.top = newNode;
             this.count++;
@@ -88,7 +88,7 @@ public class LinkedStack implements Stack {
                 cancel();
                 return null;
             } else {
-                Node aux = this.top.next;
+                NodeStack aux = this.top.next;
                 this.top = aux;
                 this.count--;
             }

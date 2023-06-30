@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Usuarios>
+  <Usuario user="jos">
+    <name>jos</name>
+    <password>1</password>
+    <Posts />
+    <Friends>
+      <Friend>mar</Friend>
+    </Friends>
+    <Requests>
+      <Request />
+    </Requests>
+  </Usuario>
+  <Usuario user="mar">
+    <name>mar</name>
+    <password>2</password>
+    <Posts />
+    <Friends>
+      <Friend>jos</Friend>
+      <Friend>emma</Friend>
+    </Friends>
+    <Requests />
+  </Usuario>
+  <Usuario user="emma">
+    <name>emma</name>
+    <password>3</password>
+    <Posts />
+    <Friends>
+      <Friend>mar</Friend>
+    </Friends>
+    <Requests>
+      <Request />
+    </Requests>
+  </Usuario>
+  <Usuario user="jefc">
+    <name>Jelkin</name>
+    <password>123</password>
+    <Posts />
+    <Friends />
+    <Requests>
+      <Request>mar</Request>
+    </Requests>
+  </Usuario>
+</Usuarios>
+

@@ -6,8 +6,15 @@ package GUI;
 
 import Domain.ContentButtons;
 import Domain.Friends;
+import Domain.User;
+import Logic.LinkedStack;
+import Utility.UsuarioXML;
 import java.awt.Color;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -16,23 +23,34 @@ import java.awt.Point;
 public class JFFeed extends javax.swing.JFrame {
 
     private ContentButtons button;
-    private Friends friends;
+    private User user;
+    private LinkedStack stack;
+    private UsuarioXML xML;
 
     /**
      * Creates new form JFFriendRequests
      */
-    public JFFeed(Friends friends) {
-        this.friends = friends;
-        this.button = new ContentButtons();
-        for (int i = 0; i < this.friends.getFriends().size(); i++) {
-            for (int j = 0; j < this.friends.getFriends().get(i).getPost().size(); j++) {
-                this.button.getCircularDoublyList().addEnd(this.friends.getFriends().get(i).getName()+
-                    "\n \n"+this.friends.getFriends().get(i).getPost().get(j).getMessage());
-            }
+    public JFFeed(User user) {
+        try {
+            this.user = user;
+            this.button = new ContentButtons();
+            this.stack = new LinkedStack();
+            this.xML = new UsuarioXML();
+            this.stack = this.xML.recuperarPosts(user.getUser());
+            initComponents();
+            if (stack != null) {
+                if (!stack.isEmpty() && stack.top() != null) {
+                    this.jtaPost.setText("" + this.stack.top());
+                } else {
+                    this.jtaPost.setText("");
 
+                }
+            }
+        } catch (JDOMException ex) {
+            Logger.getLogger(JFFeed.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JFFeed.class.getName()).log(Level.SEVERE, null, ex);
         }
-        initComponents();
-        this.jtaShowFriends.setText("" + this.button.getCircularDoublyList().fristInList());
     }
 
     /**
@@ -292,6 +310,11 @@ public class JFFeed extends javax.swing.JFrame {
         jbtnUp.setBorderPainted(false);
         jbtnUp.setFocusPainted(false);
         jbtnUp.setFocusable(false);
+        jbtnUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnUpActionPerformed(evt);
+            }
+        });
 
         jbtnDown.setBackground(new java.awt.Color(255, 255, 255));
         jbtnDown.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-dispositivo-gps-abajo-40.png"))); // NOI18N
@@ -300,6 +323,11 @@ public class JFFeed extends javax.swing.JFrame {
         jbtnDown.setBorderPainted(false);
         jbtnDown.setFocusPainted(false);
         jbtnDown.setFocusable(false);
+        jbtnDown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtnDownActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jpFriendsLayout = new javax.swing.GroupLayout(jpFriends);
         jpFriends.setLayout(jpFriendsLayout);
@@ -375,60 +403,80 @@ public class JFFeed extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtnLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLeftActionPerformed
-        this.jtaShowFriends.setText("");
-        this.button.moveLeft();
-        this.jtaShowFriends.setText("" + this.button.getCircularDoublyList().fristInList());
+
     }//GEN-LAST:event_jbtnLeftActionPerformed
 
     private void jbtnRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRightActionPerformed
-        this.jtaShowFriends.setText("");
-        this.button.moveRight();
-        this.jtaShowFriends.setText("" + this.button.getCircularDoublyList().fristInList());
+
     }//GEN-LAST:event_jbtnRightActionPerformed
 
     private void jbtnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnHomeActionPerformed
         if (jbtnHome == evt.getSource()) {
-            JFFeed jff = new JFFeed(this.friends);
+            JFFeed jff = new JFFeed(this.user);
             jff.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnHomeActionPerformed
 
     private void jbtnAddPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddPostActionPerformed
-        if (jbtnAddPost == evt.getSource()){
-            JFAddPost jfap = new JFAddPost(this.friends);
+        if (jbtnAddPost == evt.getSource()) {
+            JFAddPost jfap = new JFAddPost(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnAddPostActionPerformed
 
     private void jbtnAddFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddFriendsActionPerformed
-        JFFriendRequests jff = new JFFriendRequests(this.friends);
+        JFFriendRequests jff = new JFFriendRequests(this.user);
         jff.setVisible(true);
         dispose();
     }//GEN-LAST:event_jbtnAddFriendsActionPerformed
 
     private void jbtnShowFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnShowFriendsActionPerformed
-        if (jbtnShowFriends == evt.getSource()){
-            JFShowFriends jfap = new JFShowFriends(this.friends);
+        if (jbtnShowFriends == evt.getSource()) {
+            JFShowFriends jfap = new JFShowFriends(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnShowFriendsActionPerformed
 
     private void jbtnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLogOutActionPerformed
-        if (jbtnLogOut == evt.getSource()){
+        if (jbtnLogOut == evt.getSource()) {
             System.exit(0);
         }
     }//GEN-LAST:event_jbtnLogOutActionPerformed
 
     private void jbtnSearchFriends1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSearchFriends1ActionPerformed
-                if (this.jbtnSearchFriends1 == evt.getSource()) {
-            JFSearchFriends jfSF = new JFSearchFriends(friends);
+        if (this.jbtnSearchFriends1 == evt.getSource()) {
+            JFSearchFriends jfSF = new JFSearchFriends(user);
             jfSF.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnSearchFriends1ActionPerformed
+
+    private void jbtnUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnUpActionPerformed
+        this.button.moveRight(stack);
+        if (stack != null) {
+            if (!stack.isEmpty() && stack.top() != null) {
+                this.jtaPost.setText("" + this.stack.top());
+            } else {
+                this.jtaPost.setText("");
+
+            }
+        }
+    }//GEN-LAST:event_jbtnUpActionPerformed
+
+    private void jbtnDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnDownActionPerformed
+        this.button.moveLeft(stack);
+        if (stack != null) {
+            if (!stack.isEmpty() && stack.top() != null) {
+                this.jtaPost.setText("" + this.stack.top());
+            } else {
+                this.jtaPost.setText("");
+
+            }
+        }
+    }//GEN-LAST:event_jbtnDownActionPerformed
 
     /**
      * @param args the command line arguments

@@ -4,11 +4,13 @@
  */
 package GUI;
 
-
 import Domain.Friends;
 import Domain.User;
+import Logic.Graph;
+import Logic.ListGraph;
 import Utility.UsuarioXML;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jdom.JDOMException;
@@ -17,19 +19,31 @@ import org.jdom.JDOMException;
  *
  * @author User
  */
+
 public class JFSignUp extends javax.swing.JFrame {
+
     private Friends friends;
     private UsuarioXML xml;
+    private User user;
+
+
     /**
      * Creates new form JFSignUp
      */
-    public JFSignUp(Friends friends) {
-        this.friends = friends;
-        initComponents();
-        this.xml = new UsuarioXML();
+    public JFSignUp(User user){
+        try {
+            this.user = user;
+//            this.friends = friends;
+            initComponents();
+            this.xml = new UsuarioXML();
+        } catch (JDOMException | IOException ex) {
+            Logger.getLogger(JFSignUp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-
     
+     
+     
+     
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -78,7 +92,6 @@ public class JFSignUp extends javax.swing.JFrame {
         jtfUser.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         jtfUser.setCaretColor(new java.awt.Color(153, 153, 153));
         jtfUser.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        jtfUser.setOpaque(true);
         jtfUser.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jtfUserMousePressed(evt);
@@ -123,7 +136,6 @@ public class JFSignUp extends javax.swing.JFrame {
         jPasswordField1.setForeground(new java.awt.Color(102, 102, 102));
         jPasswordField1.setToolTipText("password");
         jPasswordField1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-        jPasswordField1.setOpaque(true);
         jPasswordField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jPasswordField1ActionPerformed(evt);
@@ -281,13 +293,22 @@ public class JFSignUp extends javax.swing.JFrame {
     private void jbtnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSignUpActionPerformed
         if (jbtnSignUp == evt.getSource() && validateSpaces()) {
             try {
-                User user = new User(this.jtfUser.getText(),
-                        this.jtfFullName.getText(),
-                        this.jPasswordField1.getText());
-                this.xml.guardarRegistroUsuario(user);
-                JFLogin fLogin = new JFLogin(this.friends);
-                fLogin.setVisible(true);
-                dispose();
+                if (this.xml.signUpXML(this.jtfUser.getText()) == true) {
+                    this.jtfUser.setText("user alredy exists");
+                } else if (this.xml.signUpXML(this.jtfUser.getText()) == false){
+                    this.user = new User(this.jtfUser.getText(),
+                            this.jtfFullName.getText(),
+                            this.jPasswordField1.getText());
+                    this.xml.guardarRegistroUsuario(user);
+                    
+                    // crear graph
+                    
+                    JFLogin fLogin = new JFLogin(this.user);
+                    fLogin.setVisible(true);
+                    dispose();
+
+                }
+
             } catch (JDOMException | IOException ex) {
                 Logger.getLogger(JFSignUp.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -333,14 +354,14 @@ public class JFSignUp extends javax.swing.JFrame {
 
     private void jtfUserMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jtfUserMousePressed
         if (this.jtfUser.getText().equals("Please fill in the required information.")) {
-            
+
             this.jtfUser.setText("");
         }
     }//GEN-LAST:event_jtfUserMousePressed
 
     private void jtfFullNameMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jtfFullNameMousePressed
         if (this.jtfFullName.getText().equals("Please fill in the required information.")) {
-            
+
             this.jtfFullName.setText("");
         }
     }//GEN-LAST:event_jtfFullNameMousePressed
@@ -349,7 +370,7 @@ public class JFSignUp extends javax.swing.JFrame {
 
         if (jbtnLogIn == evt.getSource()) {
 
-            JFLogin jfSU = new JFLogin();
+            JFLogin jfSU = new JFLogin(this.user);
             jfSU.setVisible(true);
             dispose();
         }
@@ -384,6 +405,7 @@ public class JFSignUp extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(JFSignUp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */

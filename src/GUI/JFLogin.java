@@ -7,7 +7,14 @@ package GUI;
 import Domain.Friends;
 import Domain.Post;
 import Domain.User;
+import Logic.ListGraph;
+import Utility.UsuarioXML;
+import java.awt.HeadlessException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -16,30 +23,71 @@ import java.util.ArrayList;
 public class JFLogin extends javax.swing.JFrame {
 
     private Friends friends;
+    private UsuarioXML xml;
+    private User user;
+    public static String username = "";
+    public static ListGraph graph;
 
     /**
      * Creates new form JFLogin
      */
+//    public JFLogin(User user) {
+//        this.xml = new UsuarioXML();
+//        this.friends = new Friends("Maryam");
+//        this.friends.getFriends().add(new User("Maryam", "",""));
+//        this.friends.getFriends().add(new User("Josseph","",""));
+//        this.friends.getFriends().add(new User("Emanuel","",""));
+//        this.friends.getFriends().get(0).setPost(new Post("Carro nuevo!"));
+//        this.friends.getFriends().get(0).setPost(new Post("Feliz navidad a todos"));
+//      C  this.friends.getFriends().get(1).setPost(new Post("Cansado del trabajo"));
+//        this.friends.getFriends().get(1).setPost(new Post("Nuevo iembro en la familia"));
+//        this.friends.getFriends().get(2).setPost(new Post("Un perrito me hizo compañía"));
+//        this.friends.getFriends().get(2).setPost(new Post("¿Alguien me ayuda con matemáticas?"));
+//        initComponents();
+//    }
     public JFLogin() {
-        this.friends = new Friends();
-        this.friends.getFriends().add(new User("Maryam", "",""));
-        this.friends.getFriends().add(new User("Josseph","",""));
-        this.friends.getFriends().add(new User("Emanuel","",""));
+        try {
+            this.xml = new UsuarioXML();
+            
 
-        this.friends.getFriends().get(0).setPost(new Post("Carro nuevo!"));
-        this.friends.getFriends().get(0).setPost(new Post("Feliz navidad a todos"));
-
-        this.friends.getFriends().get(1).setPost(new Post("Cansado del trabajo"));
-        this.friends.getFriends().get(1).setPost(new Post("Nuevo iembro en la familia"));
-
-        this.friends.getFriends().get(2).setPost(new Post("Un perrito me hizo compañía"));
-        this.friends.getFriends().get(2).setPost(new Post("¿Alguien me ayuda con matemáticas?"));
-        initComponents();
+            initComponents();
+        } catch (JDOMException | IOException ex) {
+            Logger.getLogger(JFLogin.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    public JFLogin(Friends friends) {
-        this.friends = friends;
-        initComponents();
+    public JFLogin(User user) {
+        try {
+            this.user = user;
+            this.xml = new UsuarioXML();
+            initComponents();
+        } catch (JDOMException | IOException ex) {
+            Logger.getLogger(JFLogin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
+    private ListGraph newGraph(UsuarioXML xml){
+         ListGraph auxGraph = new ListGraph(100);
+        ArrayList <User>users = xml.recuperarUsuarios(); 
+         for (int i = 0; i < users.size(); i++) {
+            auxGraph.addVertex(users.get(i).getUser());
+         }
+         ArrayList<User> friends = new ArrayList();
+         for (int i = 0; i < users.size(); i++) {
+             friends = xml.recuperarAmigos(users.get(i).getUser());
+             for (int j = 0; j < friends.size(); j++) {
+                 auxGraph.addWeight(users.get(i).getUser(), friends.get(j).getUser(), 1);
+             }
+         }
+         return auxGraph;
+     }
+    
+        private void initSuggestionsUser(){
+            if (this.user!= null) {
+                this.user.setSuggestion(graph.getSugerencias(user.getUser()));
+                System.out.println(""+ this.user.getSuggestion().toString());
+            }       
     }
 
     /**
@@ -232,8 +280,8 @@ public class JFLogin extends javax.swing.JFrame {
     private void jbtnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSignUpActionPerformed
 
         if (jbtnSignUp == evt.getSource()) {
-            
-            JFSignUp jfSU = new JFSignUp(this.friends);
+
+            JFSignUp jfSU = new JFSignUp(this.user);
             jfSU.setVisible(true);
             dispose();
         }
@@ -249,11 +297,30 @@ public class JFLogin extends javax.swing.JFrame {
                 && !this.jtfUser.getText().equals("Please fill in the required information.");
     }
     private void jbtnLogInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLogInActionPerformed
+
         if (jbtnLogIn == evt.getSource() && validateSpaces()) {
-            
-            JFFeed jff = new JFFeed(this.friends);
-            jff.setVisible(true);
-            dispose();
+//            user = new User(this.jtfUser.getText(), this.jPasswordField1.getText());
+            if (this.xml.loginXML(this.jtfUser.getText(), this.jPasswordField1.getText()) == true) {
+                this.user = xml.buscarUser(this.jtfUser.getText());
+                for (int i = 0; i < this.xml.recuperarAmigos(this.user.getUser()).size(); i++) {
+                    this.user.getFriends().addEnd((User)this.xml.recuperarAmigos(this.user.getUser()).get(i));
+                }
+                for (int i = 0; i < this.xml.recuperarRequest(this.user.getUser()).size(); i++) {
+                    this.user.getRequest().insert(this.xml.recuperarRequest(this.user.getUser()).get(i));
+                }
+//                this.xml.addRequest("mar", user);
+                this.graph = newGraph(this.xml);
+                    initSuggestionsUser();
+                    
+                JFFeed jff = new JFFeed(this.user);
+                jff.setVisible(true);
+                dispose();
+
+            } else {
+                this.jtfUser.setText("doesn´t exists");
+                this.jPasswordField1.setText("");
+            }
+
         }
     }//GEN-LAST:event_jbtnLogInActionPerformed
 

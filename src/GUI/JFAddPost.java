@@ -6,8 +6,16 @@ package GUI;
 
 import Domain.ContentButtons;
 import Domain.Friends;
+import Domain.Post;
+import Domain.User;
+import Logic.Node;
+import Utility.UsuarioXML;
 import java.awt.Color;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -15,23 +23,44 @@ import java.awt.Point;
  */
 public class JFAddPost extends javax.swing.JFrame {
 
-    private ContentButtons button;
-    private Friends friends;
+//    private ContentButtons button;
+//    private Friends friends;
+    private User user;
+    private Node aux;
+    private UsuarioXML xml;
 
     /**
      * Creates new form JFFriendRequests
+     * @param user
      */
-    public JFAddPost(Friends friends) {
-        this.friends = friends;
-        this.button = new ContentButtons();
-        for (int i = 0; i < this.friends.getFriends().size(); i++) {
-            for (int j = 0; j < this.friends.getFriends().get(i).getPost().size(); j++) {
-                this.button.getCircularDoublyList().addEnd(this.friends.getFriends().get(i).getName()+
-                    "\n \n"+this.friends.getFriends().get(i).getPost().get(j).getMessage());
-            }
-
+    public JFAddPost(User user) {
+        try {
+            this.xml = new UsuarioXML();
+            this.user = user;
+//            if (this.user.getPost().isEmpty()) {
+//                
+//                this.jTAPost.setText("");
+//            } else {
+//                Post auxP = (Post) this.user.getPost().top();
+////             this.aux = aux;
+//            }
+            
+//    public JFAddPost( ) {
+//        this.friends = friends;
+//        this.button = new ContentButtons();
+//        for (int i = 0; i < this.friends.getFriends().size(); i++) {
+//            for (int j = 0; j < this.friends.getFriends().get(i).getPost().size(); j++) {
+//                this.button.getCircularDoublyList().addEnd(this.friends.getFriends().get(i).getName()+
+//                    "\n \n"+this.friends.getFriends().get(i).getPost().get(j).getMessage());
+//            }
+//
+//        }
+initComponents();
+        } catch (JDOMException ex) {
+            Logger.getLogger(JFAddPost.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JFAddPost.class.getName()).log(Level.SEVERE, null, ex);
         }
-        initComponents();
     }
 
     /**
@@ -298,14 +327,23 @@ public class JFAddPost extends javax.swing.JFrame {
     private void jBAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBAcceptActionPerformed
 
         if (jBAccept == evt.getSource()) {
-
+            if (!jTAPost.getText().isBlank()) {
+            this.user.addPosts(new Post(this.jTAPost.getText()));
+                System.out.println(user.getUser());
+            this.user.setUser(user.getUser());
+            this.xml.addPost(this.jTAPost.getText(), this.user);
             this.jTAPost.setText("");
+            System.out.println("publicado");
+            
+        }else {
+                System.out.println("error 101");
+            }
         }
     }//GEN-LAST:event_jBAcceptActionPerformed
 
     private void jbtnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnHomeActionPerformed
         if (jbtnHome == evt.getSource()) {
-            JFFeed jff = new JFFeed(this.friends);
+            JFFeed jff = new JFFeed(this.user);
             jff.setVisible(true);
             dispose();
         }
@@ -313,21 +351,21 @@ public class JFAddPost extends javax.swing.JFrame {
 
     private void jbtnAddPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddPostActionPerformed
         if (jbtnAddPost == evt.getSource()){
-            JFAddPost jfap = new JFAddPost(this.friends);
+            JFAddPost jfap = new JFAddPost(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnAddPostActionPerformed
 
     private void jbtnAddFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddFriendsActionPerformed
-        JFFriendRequests jff = new JFFriendRequests(this.friends);
+        JFFriendRequests jff = new JFFriendRequests(this.user);
         jff.setVisible(true);
         dispose();
     }//GEN-LAST:event_jbtnAddFriendsActionPerformed
 
     private void jbtnShowFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnShowFriendsActionPerformed
         if (jbtnShowFriends == evt.getSource()){
-            JFShowFriends jfap = new JFShowFriends(this.friends);
+            JFShowFriends jfap = new JFShowFriends(this.user);
             jfap.setVisible(true);
             dispose();
         }
@@ -341,7 +379,7 @@ public class JFAddPost extends javax.swing.JFrame {
 
     private void jbtnSearchFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSearchFriendsActionPerformed
                 if (this.jbtnSearchFriends == evt.getSource()) {
-            JFSearchFriends jfSF = new JFSearchFriends(friends);
+            JFSearchFriends jfSF = new JFSearchFriends(user);
             jfSF.setVisible(true);
             dispose();
         }

@@ -6,8 +6,18 @@ package GUI;
 
 import Domain.ContentButtons;
 import Domain.Friends;
+import Domain.User;
+import Logic.CircularDoublyList;
+import Logic.ListGraph;
+import Logic.Vertex;
+import Utility.UsuarioXML;
 import java.awt.Color;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -15,38 +25,55 @@ import java.awt.Point;
  */
 public class JFSearchFriends extends javax.swing.JFrame {
 
-    private ContentButtons friendsB;
-    private ContentButtons requests;
-    private Friends friends;
-    private boolean aux, validar;
+    private ContentButtons buttons;
+    private User user;
+    private ListGraph graph;
+    private UsuarioXML xML;
 
     /**
      * Creates new form JFFriendRequests
      */
-    public JFSearchFriends(Friends friends) {
-
-        this.aux = true;
-        this.validar = false;
-        this.friendsB = new ContentButtons();
-        this.requests = new ContentButtons();
-        this.friends = friends;
-        fillRequests();
-        initComponents();
-        //this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
-//        if (this.friendsB.getCircularDoublyList().isEmpty()) {
-//            this.jtaShowFriends.setText("");
-//        } else {
-//            this.jtaShowFriends.setText("" + this.friendsB.getCircularDoublyList().fristInList());
-//        }
-//        this.jBAccept.setVisible(true);
-//        this.jBDelete.setVisible(true);
+    public JFSearchFriends(User user) {
+        try {
+            this.user = user;
+            this.xML = new UsuarioXML();
+            this.buttons = new ContentButtons();
+            this.graph = new ListGraph(this.xML.recuperarUsuarios().size());
+            fillGraph();
+            initComponents();
+            if (this.user.getSuggestion() == null || this.user.getSuggestion().isEmpty()) {
+                this.jtaShowFriends.setText("");
+            } else {
+                User u = (User) this.user.getFriends().fristInList();
+                this.jtaShowFriends.setText("" + this.user.getSuggestion().fristElement());
+            }
+        } catch (JDOMException ex) {
+            Logger.getLogger(JFSearchFriends.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JFSearchFriends.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    public void fillRequests() {
-        for (int i = 0; i < this.friends.getFriends().size(); i++) {
-            this.requests.getCircularDoublyList().addEnd(this.friends.getFriends().get(i).getName());
-            
+    private void fillGraph() {
+        for (int i = 0; i < this.xML.recuperarUsuarios().size(); i++) {
+            this.graph.addVertex(this.xML.recuperarUsuarios().get(i).getUser());
         }
+
+        CircularDoublyList cdl = new CircularDoublyList();
+        for (int j = 0; j < this.xML.recuperarUsuarios().size(); j++) {
+            for (int i = 0; i < this.xML.recuperarAmigos(this.xML.recuperarUsuarios().get(j).getUser()).size(); i++) {
+                if (!this.graph.existEdge(this.xML.recuperarUsuarios().get(j).getUser(), this.xML.recuperarAmigos(this.xML.recuperarUsuarios().get(j).getUser()).get(i).getUser())) {
+                    this.graph.addWeight(this.xML.recuperarUsuarios().get(j).getUser(), this.xML.recuperarAmigos(this.xML.recuperarUsuarios().get(j).getUser()).get(i).getUser(),1);
+
+                }
+            }
+        }
+//        for (int i = 0; i < this.graph.getVertexes().length; i++) {
+//            if (this.graph.getVertexes()[i].element.equals(this.user.getUser())) {
+//                this.user.setSuggestion(this.graph.getSugerencias(this.graph.getVertexes()[i].element));
+//            }
+//        }     
+        System.out.println(this.graph.toString());
     }
 
     /**
@@ -69,13 +96,13 @@ public class JFSearchFriends extends javax.swing.JFrame {
         jlIconImagran = new javax.swing.JLabel();
         jbtnSearchFriends = new javax.swing.JButton();
         jpFriends = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jtaShowFriends = new javax.swing.JTextArea();
         jBDelete = new javax.swing.JButton();
         jBAccept = new javax.swing.JButton();
         jlFriendsRequest = new javax.swing.JLabel();
-        jtfUserSearch = new javax.swing.JTextField();
-        jbtnSearch = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jtaShowFriends = new javax.swing.JTextArea();
+        jbtnLeft = new javax.swing.JButton();
+        jbtnRight = new javax.swing.JButton();
         jlBackground = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -232,25 +259,6 @@ public class JFSearchFriends extends javax.swing.JFrame {
         jpFriends.setBackground(new java.awt.Color(255, 255, 255));
         jpFriends.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
 
-        jtaShowFriends.setEditable(false);
-        jtaShowFriends.setBackground(new java.awt.Color(255, 255, 255));
-        jtaShowFriends.setColumns(20);
-        jtaShowFriends.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jtaShowFriends.setForeground(new java.awt.Color(51, 51, 51));
-        jtaShowFriends.setRows(5);
-        jtaShowFriends.setText("Se debe mostrar a la persona que se busca y así poder enviarle la solicitud");
-        jtaShowFriends.setToolTipText("Friends");
-        jtaShowFriends.setBorder(null);
-        jtaShowFriends.setCaretColor(new java.awt.Color(153, 153, 153));
-        jtaShowFriends.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jtaShowFriends.setDisabledTextColor(new java.awt.Color(102, 102, 102));
-        jtaShowFriends.setEnabled(false);
-        jtaShowFriends.setFocusable(false);
-        jtaShowFriends.setRequestFocusEnabled(false);
-        jtaShowFriends.setSelectionColor(new java.awt.Color(255, 255, 255));
-        jtaShowFriends.setVerifyInputWhenFocusTarget(false);
-        jScrollPane1.setViewportView(jtaShowFriends);
-
         jBDelete.setBackground(new java.awt.Color(204, 204, 204));
         jBDelete.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jBDelete.setForeground(new java.awt.Color(0, 0, 0));
@@ -291,26 +299,48 @@ public class JFSearchFriends extends javax.swing.JFrame {
         jlFriendsRequest.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icon-SearchFriends.png"))); // NOI18N
         jlFriendsRequest.setToolTipText("");
 
-        jtfUserSearch.setBackground(new java.awt.Color(204, 204, 204));
-        jtfUserSearch.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jtfUserSearch.setForeground(new java.awt.Color(0, 0, 0));
-        jtfUserSearch.setToolTipText("user");
-        jtfUserSearch.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jtfUserSearch.addActionListener(new java.awt.event.ActionListener() {
+        jtaShowFriends.setEditable(false);
+        jtaShowFriends.setBackground(new java.awt.Color(255, 255, 255));
+        jtaShowFriends.setColumns(20);
+        jtaShowFriends.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jtaShowFriends.setForeground(new java.awt.Color(51, 51, 51));
+        jtaShowFriends.setRows(5);
+        jtaShowFriends.setText(" Se hace con colas");
+        jtaShowFriends.setToolTipText("Friends");
+        jtaShowFriends.setBorder(null);
+        jtaShowFriends.setCaretColor(new java.awt.Color(153, 153, 153));
+        jtaShowFriends.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jtaShowFriends.setDisabledTextColor(new java.awt.Color(102, 102, 102));
+        jtaShowFriends.setEnabled(false);
+        jtaShowFriends.setFocusable(false);
+        jtaShowFriends.setRequestFocusEnabled(false);
+        jtaShowFriends.setSelectionColor(new java.awt.Color(255, 255, 255));
+        jtaShowFriends.setVerifyInputWhenFocusTarget(false);
+        jScrollPane1.setViewportView(jtaShowFriends);
+
+        jbtnLeft.setBackground(new java.awt.Color(255, 255, 255));
+        jbtnLeft.setForeground(new java.awt.Color(102, 102, 102));
+        jbtnLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-izquierda-en-cuadrado-50.png"))); // NOI18N
+        jbtnLeft.setToolTipText("left");
+        jbtnLeft.setBorderPainted(false);
+        jbtnLeft.setFocusPainted(false);
+        jbtnLeft.setFocusable(false);
+        jbtnLeft.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jtfUserSearchActionPerformed(evt);
+                jbtnLeftActionPerformed(evt);
             }
         });
 
-        jbtnSearch.setBackground(new java.awt.Color(255, 255, 255));
-        jbtnSearch.setForeground(new java.awt.Color(255, 255, 255));
-        jbtnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-lupa-35 (1).png"))); // NOI18N
-        jbtnSearch.setBorderPainted(false);
-        jbtnSearch.setFocusPainted(false);
-        jbtnSearch.setFocusable(false);
-        jbtnSearch.addActionListener(new java.awt.event.ActionListener() {
+        jbtnRight.setBackground(new java.awt.Color(255, 255, 255));
+        jbtnRight.setForeground(new java.awt.Color(102, 102, 102));
+        jbtnRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-derecha-en-cuadrado-50.png"))); // NOI18N
+        jbtnRight.setToolTipText("right");
+        jbtnRight.setBorderPainted(false);
+        jbtnRight.setFocusPainted(false);
+        jbtnRight.setFocusable(false);
+        jbtnRight.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbtnSearchActionPerformed(evt);
+                jbtnRightActionPerformed(evt);
             }
         });
 
@@ -318,38 +348,47 @@ public class JFSearchFriends extends javax.swing.JFrame {
         jpFriends.setLayout(jpFriendsLayout);
         jpFriendsLayout.setHorizontalGroup(
             jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpFriendsLayout.createSequentialGroup()
+                .addGap(87, 87, 87)
+                .addComponent(jBDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jBAccept, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(143, 143, 143))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpFriendsLayout.createSequentialGroup()
-                .addContainerGap(60, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jlFriendsRequest, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jpFriendsLayout.createSequentialGroup()
-                        .addComponent(jtfUserSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbtnSearch))
-                    .addGroup(jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpFriendsLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jlFriendsRequest, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(441, 441, 441))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpFriendsLayout.createSequentialGroup()
+                        .addComponent(jbtnLeft)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(jpFriendsLayout.createSequentialGroup()
-                            .addComponent(jBDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(41, 41, 41)
-                            .addComponent(jBAccept, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(78, 78, 78))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jbtnRight, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(7, 7, 7))))
         );
         jpFriendsLayout.setVerticalGroup(
             jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpFriendsLayout.createSequentialGroup()
                 .addGap(84, 84, 84)
                 .addComponent(jlFriendsRequest)
-                .addGap(40, 40, 40)
-                .addGroup(jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jbtnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jtfUserSearch, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE))
-                .addGap(57, 57, 57)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                .addGroup(jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpFriendsLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(38, 38, 38))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpFriendsLayout.createSequentialGroup()
+                        .addComponent(jbtnLeft)
+                        .addGap(204, 204, 204))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpFriendsLayout.createSequentialGroup()
+                        .addComponent(jbtnRight)
+                        .addGap(212, 212, 212)))
                 .addGroup(jpFriendsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jBAccept, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jBDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(180, Short.MAX_VALUE))
+                    .addComponent(jBDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jBAccept, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18))
         );
 
         jPanel1.add(jpFriends, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 720, 680));
@@ -374,94 +413,107 @@ public class JFSearchFriends extends javax.swing.JFrame {
     private void jBAcceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBAcceptActionPerformed
 
         if (jBAccept == evt.getSource()) {
-
-            if (this.requests.getCircularDoublyList().getSize() == 1) {
-                this.friendsB.getCircularDoublyList().addEnd(this.requests.getCircularDoublyList().fristInList());
-                this.requests.getCircularDoublyList().cancel();
-            } else if (this.requests.getCircularDoublyList().getSize() > 1) {
-                this.friendsB.getCircularDoublyList().addEnd(this.requests.getCircularDoublyList().fristInList());
-                this.requests.getCircularDoublyList().deleteByElement(this.friendsB.getCircularDoublyList().lastInList());
+            if (this.user.getRequest().getSize() == 1) {
+                String element = (String) this.user.getSuggestion().fristElement();
+                this.user.getRequest().cancel();
+            } else if (this.user.getRequest().getSize() > 1) {
+                String element = (String) this.user.getSuggestion().fristElement();
+                
+                this.user.getRequest().delete();
             }
-
-            if (this.requests.getCircularDoublyList().isEmpty()) {
+            if (this.user.getRequest().isEmpty()) {
                 this.jtaShowFriends.setText("");
             } else {
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+                this.jtaShowFriends.setText("" + this.user.getSuggestion().fristElement());
             }
         }
     }//GEN-LAST:event_jBAcceptActionPerformed
 
     private void jBDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBDeleteActionPerformed
         if (jBDelete == evt.getSource()) {
-            if (this.requests.getCircularDoublyList().getSize() == 1) {
-                this.requests.getCircularDoublyList().cancel();
-            } else if (this.requests.getCircularDoublyList().getSize() > 1) {
-                Object element = this.requests.getCircularDoublyList().fristInList();
-                this.requests.getCircularDoublyList().deleteByElement(element);
+            if (this.user.getRequest().getSize() == 1) {
+                String element = (String) this.user.getSuggestion().fristElement();
+                this.user.getRequest().cancel();
+            } else if (this.user.getRequest().getSize() > 1) {
+                String element = (String) this.user.getSuggestion().fristElement();
+                this.user.getRequest().delete();
             }
-            if (this.requests.getCircularDoublyList().isEmpty()) {
+            if (this.user.getRequest().isEmpty()) {
                 this.jtaShowFriends.setText("");
             } else {
-                this.jtaShowFriends.setText("" + this.requests.getCircularDoublyList().fristInList());
+                this.jtaShowFriends.setText("" + this.user.getRequest().fristElement());
             }
         }
     }//GEN-LAST:event_jBDeleteActionPerformed
 
     private void jbtnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnHomeActionPerformed
         if (jbtnHome == evt.getSource()) {
-            JFFeed jff = new JFFeed(this.friends);
+            JFFeed jff = new JFFeed(this.user);
             jff.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnHomeActionPerformed
 
     private void jbtnAddPostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddPostActionPerformed
-        if (jbtnAddPost == evt.getSource()){
-            JFAddPost jfap = new JFAddPost(this.friends);
+        if (jbtnAddPost == evt.getSource()) {
+            JFAddPost jfap = new JFAddPost(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnAddPostActionPerformed
 
     private void jbtnAddFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnAddFriendsActionPerformed
-        JFSearchFriends jff = new JFSearchFriends(this.friends);
+        JFSearchFriends jff = new JFSearchFriends(this.user);
         jff.setVisible(true);
         dispose();
     }//GEN-LAST:event_jbtnAddFriendsActionPerformed
 
     private void jbtnShowFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnShowFriendsActionPerformed
-        if (jbtnShowFriends == evt.getSource()){
-            JFShowFriends jfap = new JFShowFriends(this.friends);
+        if (jbtnShowFriends == evt.getSource()) {
+            JFShowFriends jfap = new JFShowFriends(this.user);
             jfap.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnShowFriendsActionPerformed
 
     private void jbtnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLogOutActionPerformed
-        if (jbtnLogOut == evt.getSource()){
+        if (jbtnLogOut == evt.getSource()) {
             System.exit(0);
         }
     }//GEN-LAST:event_jbtnLogOutActionPerformed
 
     private void jbtnSearchFriendsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSearchFriendsActionPerformed
         if (this.jbtnSearchFriends == evt.getSource()) {
-            JFSearchFriends jfSF = new JFSearchFriends(friends);
+            JFSearchFriends jfSF = new JFSearchFriends(user);
             jfSF.setVisible(true);
             dispose();
         }
     }//GEN-LAST:event_jbtnSearchFriendsActionPerformed
 
-    private void jbtnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnSearchActionPerformed
-        if (this.jtfUserSearch.getText().isEmpty()) {
-            this.jtfUserSearch.setText("Please fill in the required information.");
-        } else {
-                this.jtfUserSearch.setText("");
-        }
-    }//GEN-LAST:event_jbtnSearchActionPerformed
+    private void jbtnRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnRightActionPerformed
 
-    private void jtfUserSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtfUserSearchActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jtfUserSearchActionPerformed
+        if (jbtnRight == evt.getSource()) {
+            this.buttons.moveRightRequests(this.user.getSuggestion());
+            if (this.user.getSuggestion() == null || this.user.getSuggestion().isEmpty()) {
+                this.jtaShowFriends.setText("");
+            } else {
+                User u = (User) this.user.getFriends().fristInList();
+                this.jtaShowFriends.setText("" + this.user.getSuggestion().fristElement());
+            }
+        }
+    }//GEN-LAST:event_jbtnRightActionPerformed
+
+    private void jbtnLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnLeftActionPerformed
+        if (jbtnRight == evt.getSource()) {
+            this.buttons.moveLeftRequests(this.user.getSuggestion());
+            if (this.user.getSuggestion() == null || this.user.getSuggestion().isEmpty()) {
+                this.jtaShowFriends.setText("");
+            } else {
+                User u = (User) this.user.getFriends().fristInList();
+                this.jtaShowFriends.setText("" + this.user.getSuggestion().fristElement());
+            }
+        }
+    }//GEN-LAST:event_jbtnLeftActionPerformed
 
     /**
      * @param args the command line arguments
@@ -507,8 +559,9 @@ public class JFSearchFriends extends javax.swing.JFrame {
     private javax.swing.JButton jbtnAddFriends;
     private javax.swing.JButton jbtnAddPost;
     private javax.swing.JButton jbtnHome;
+    private javax.swing.JButton jbtnLeft;
     private javax.swing.JButton jbtnLogOut;
-    private javax.swing.JButton jbtnSearch;
+    private javax.swing.JButton jbtnRight;
     private javax.swing.JButton jbtnSearchFriends;
     private javax.swing.JButton jbtnShowFriends;
     private javax.swing.JLabel jlBackground;
@@ -517,6 +570,5 @@ public class JFSearchFriends extends javax.swing.JFrame {
     private javax.swing.JPanel jpFriends;
     private javax.swing.JPanel jpIcons;
     private javax.swing.JTextArea jtaShowFriends;
-    private javax.swing.JTextField jtfUserSearch;
     // End of variables declaration//GEN-END:variables
 }

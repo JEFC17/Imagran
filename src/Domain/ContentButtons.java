@@ -5,6 +5,8 @@
 package Domain;
 
 import Logic.CircularDoublyList;
+import Logic.LinkedQueue;
+import Logic.LinkedStack;
 import Logic.Node;
 
 /**
@@ -13,52 +15,125 @@ import Logic.Node;
  */
 public class ContentButtons {
 
-    private CircularDoublyList circularDoublyList;
+    public void moveRightRequests(LinkedQueue lq) {
+        LinkedQueue queue = new LinkedQueue();
 
-    public ContentButtons() {
-        this.circularDoublyList = new CircularDoublyList();
+        Object fristInList = lq.fristElement();
+        lq.delete();
+
+        while (!lq.isEmpty()) {
+            queue.insert(lq.fristElement());
+            lq.delete();
+            System.out.println(lq.getSize());
+        }
+        lq.cancel();
+        while (!queue.isEmpty()) {
+            lq.insert(queue.fristElement());
+            queue.delete();
+        }
+        queue.cancel();
+        lq.insert(fristInList);
     }
 
-    public void moveRight() {
+    public void moveLeftRequests(LinkedQueue lq) {
 
-        CircularDoublyList cdl = new CircularDoublyList();
+        LinkedQueue queue = new LinkedQueue();
 
-        Node aux = this.circularDoublyList.getStart();
-        while (aux != this.circularDoublyList.getEnd()) {
-            cdl.addEnd(aux.next.getElement());
-            aux = aux.next;
+        Object fristInList = new Object();
+
+        while (!lq.isEmpty()) {
+            if (lq.getSize() == 1) {
+                fristInList = lq.fristElement();
+                lq.delete();
+
+            } else {
+                queue.insert(lq.fristElement());
+                lq.delete();
+            }
         }
-        cdl.addEnd(this.circularDoublyList.fristInList());
-        this.circularDoublyList.cancel();
-        for (int i = 0; i < cdl.getSize() - 1; i++) {
-            this.circularDoublyList.addEnd(cdl.getByPosition(i));
+        lq.cancel();
+        lq.insert(fristInList);
+
+        while (!queue.isEmpty()) {
+            lq.insert(queue.fristElement());
+            queue.delete();
         }
-        this.circularDoublyList.addEnd(cdl.lastInList());
+        queue.cancel();
     }
 
-    public void moveLeft() {
+    public void moveRight(LinkedStack linkedStack) {
+        LinkedStack ls = new LinkedStack();
+        Object fristInList = new Object();
 
+        Object object = linkedStack.top;
+
+        while (!linkedStack.isEmpty()) {
+            ls.push(linkedStack.top());
+            linkedStack.pop();
+        }
+        fristInList = ls.top();
+        ls.pop();
+
+        linkedStack.cancel();
+        while (!ls.isEmpty()) {
+            linkedStack.push(ls.top());
+            ls.pop();
+        }
+        linkedStack.push(fristInList);
+
+    }
+
+    public void moveLeft(LinkedStack linkedStack) {
+        LinkedStack ls = new LinkedStack();
+        Object fristInList = new Object();
+
+        Object object = linkedStack.top;
+
+        fristInList = linkedStack.top();
+        linkedStack.pop();
+
+        while (!linkedStack.isEmpty()) {
+            ls.push(linkedStack.top());
+            linkedStack.pop();
+        }
+        ls.push(fristInList);
+        linkedStack.cancel();
+        while (!ls.isEmpty()) {
+            linkedStack.push(ls.top());
+            ls.pop();
+        }
+    }
+
+    public void moveUp(CircularDoublyList circularDoublyList) {
         CircularDoublyList cdl = new CircularDoublyList();
 
-        Node aux = this.circularDoublyList.getStart();
-        cdl.addEnd(this.circularDoublyList.lastInList());
+        Node aux = circularDoublyList.getStart();
+        cdl.addEnd(circularDoublyList.lastInList());
 
-        while (aux != this.circularDoublyList.getEnd()) {
+        while (aux != circularDoublyList.getEnd()) {
             cdl.addEnd(aux.getElement());
             aux = aux.next;
         }
-        this.circularDoublyList.cancel();
+        circularDoublyList.cancel();
         for (int i = 0; i < cdl.getSize() - 1; i++) {
-            this.circularDoublyList.addEnd(cdl.getByPosition(i));
+            circularDoublyList.addEnd(cdl.getByPosition(i));
         }
-        this.circularDoublyList.addEnd(cdl.lastInList());
+        circularDoublyList.addEnd(cdl.lastInList());
     }
 
-    public CircularDoublyList getCircularDoublyList() {
-        return circularDoublyList;
-    }
+    public void moveDown(CircularDoublyList circularDoublyList) {
+        CircularDoublyList cdl = new CircularDoublyList();
 
-    public void setCircularDoublyList(CircularDoublyList circularDoublyList) {
-        this.circularDoublyList = circularDoublyList;
+        Node aux = circularDoublyList.getStart();
+        while (aux != circularDoublyList.getEnd()) {
+            cdl.addEnd(aux.next.getElement());
+            aux = aux.next;
+        }
+        cdl.addEnd(circularDoublyList.fristInList());
+        circularDoublyList.cancel();
+        for (int i = 0; i < cdl.getSize() - 1; i++) {
+            circularDoublyList.addEnd(cdl.getByPosition(i));
+        }
+        circularDoublyList.addEnd(cdl.lastInList());
     }
 }
